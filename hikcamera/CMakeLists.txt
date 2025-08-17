@@ -28,6 +28,7 @@ target_link_directories(HikCamera PUBLIC
 target_link_libraries(HikCamera PUBLIC
     ${OpenCV_LIBS}
     MvCameraControl
+    pubsub
 )
 
 # 运行时 rpath，防止找不到 .so

@@ -54,6 +54,8 @@ public:
     // 显示性能监控窗口
     void showPerformanceWindow();
 
+    long getThreadsId();
+
 private:
     std::atomic<bool> monitoring_;
     std::thread monitorThread_;

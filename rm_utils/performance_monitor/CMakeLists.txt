@@ -1,7 +1,7 @@
 # rm_utils/CMakeLists.txt
 # 创建静态库
 add_library(PerformanceMonitor STATIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/performance_monitior.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/performance_monitor.cpp
 )
 
 find_package(OpenCV REQUIRED)
@@ -9,7 +9,7 @@ find_package(OpenCV REQUIRED)
 # 设置库的包含目录
 target_include_directories(PerformanceMonitor PUBLIC
     ${OpenCV_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/performance_monitor
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # 链接所需库

@@ -2,17 +2,15 @@
  * @Author: laladuduqq 2807523947@qq.com
  * @Date: 2025-08-17 16:17:20
  * @LastEditors: laladuduqq 2807523947@qq.com
- * @LastEditTime: 2025-08-17 19:46:24
+ * @LastEditTime: 2025-08-18 00:40:51
  * @FilePath: /mas_vision/applications/main.cpp
  * @Description: 
  */
 #include "HikCamera.h"
-#include "performance_monitior.hpp"
+#include "performance_monitor.hpp"
 #include "serial.hpp"  
+#include "pubsub.hpp"
 #include <thread>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
 #include <atomic>
 #include <iostream>
 #include <signal.h>
@@ -21,23 +19,12 @@
 
 std::atomic<bool> running(true);
 std::atomic<bool> camReady(false);
-std::queue<cv::Mat> frameQueue;
-std::mutex queueMutex;
-std::condition_variable queueCond;
 
-// 添加串口相关全局变量
-std::queue<mas_serial::ReceivedDataMsg> receivedDataQueue;
-std::mutex dataQueueMutex;
-std::condition_variable dataQueueCond;
-
-// 声明线程对象
-std::thread camThread;
-std::thread serialThread;
-
-// 声明串口线程函数
-void serialThreadFunc(mas_serial::Serial& serial);
-
-void cameraThreadFunc(hikcamera::HikCamera& cam);
+// 声明线程启动函数
+void startCameraThread(hikcamera::HikCamera& cam);
+void startSerialThread(mas_serial::Serial& serial);
+void startPubSubThread();
+void stopPubSubThread();
 
 // 性能监控器实例
 mas_utils::PerformanceMonitor perfMonitor;
@@ -46,11 +33,6 @@ mas_utils::PerformanceMonitor perfMonitor;
 void signalHandler(int signum) {
     std::cout << "Interrupt signal (" << signum << ") received." << std::endl;
     running = false;
-}
-
-// 获取当前线程ID的辅助函数
-pid_t getThreadId() {
-    return syscall(SYS_gettid);
 }
 
 int main(int argc, char* argv[])
@@ -69,24 +51,19 @@ int main(int argc, char* argv[])
     }
 
     // 配置性能监控器
-    perfMonitor.addThread("Main Thread", getThreadId());
+    perfMonitor.addThread("Main Thread", perfMonitor.getThreadsId());
     
     // 启动性能监控
     perfMonitor.startMonitoring();
+    
+    // 启动PubSub消息中心线程
+    startPubSubThread();
 
     // 启动相机线程
-    camThread = std::thread([&cam]() {
-        // 在线程内部注册线程ID
-        perfMonitor.addThread("Camera Thread", getThreadId());
-        cameraThreadFunc(cam);
-    });
+    startCameraThread(cam);
 
     // 启动串口线程
-    serialThread = std::thread([&serial]() {
-        // 在线程内部注册线程ID
-        perfMonitor.addThread("Serial Thread", getThreadId());
-        serialThreadFunc(serial);
-    });
+    startSerialThread(serial);
 
     // 主循环
     while (running.load()) {
@@ -97,9 +74,8 @@ int main(int argc, char* argv[])
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
 
-    // 等待所有线程结束
-    camThread.join();
-    serialThread.join();
+    // 停止PubSub消息中心
+    stopPubSubThread();
 
     // 停止性能监控
     perfMonitor.stopMonitoring();

@@ -1,10 +1,11 @@
-#include "performance_monitior.hpp"
+#include "performance_monitor.hpp"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <chrono>
 #include <numeric>
 #include <algorithm>
+#include <sys/syscall.h>
 
 #ifdef __linux__
 #include <unistd.h>
@@ -46,6 +47,10 @@ void mas_utils::PerformanceMonitor::stopMonitoring() {
 void mas_utils::PerformanceMonitor::addThread(const std::string& threadName, int threadId) {
     std::lock_guard<std::mutex> lock(threadsMutex_);
     threads_.emplace_back(threadName, threadId);
+}
+
+long mas_utils::PerformanceMonitor::getThreadsId() { 
+    return syscall(SYS_gettid);
 }
 
 void mas_utils::PerformanceMonitor::showPerformanceWindow() {

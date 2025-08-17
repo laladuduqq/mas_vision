@@ -16,6 +16,7 @@ target_include_directories(serial PUBLIC
 # 链接所需库
 target_link_libraries(serial PUBLIC
     ${OpenCV_LIBS}
+    pubsub
 )
 
 # 将库添加到全局变量中，供主CMakeLists.txt使用
