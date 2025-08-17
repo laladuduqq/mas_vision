@@ -13,17 +13,6 @@ hikcamera::HikCamera::~HikCamera() {
     closeCamera();
 }
 
-// 异常重连回调
-void __stdcall hikcamera::HikCamera::ReconnectCallback(unsigned int nMsgType, void* pUser)
-{
-    HikCamera* cam = reinterpret_cast<HikCamera*>(pUser);
-    if (nMsgType == MV_EXCEPTION_DEV_DISCONNECT && cam) {
-        printf("Device disconnected, try to reconnect...\n");
-        cam->closeCamera();
-        cam->openCamera();
-    }
-}
-
 bool hikcamera::HikCamera::openCamera() {
     int nRet = MV_OK;
 
@@ -181,9 +170,6 @@ bool hikcamera::HikCamera::openCamera() {
     
     isConnected = true;
     
-    // 注册异常回调
-    MV_CC_RegisterExceptionCallBack(handle, HikCamera::ReconnectCallback, this);
-    
     return true;
 }
 
@@ -206,7 +192,6 @@ void hikcamera::HikCamera::closeCamera() {
 
 bool hikcamera::HikCamera::grabImage(cv::Mat& outImg) {
     if (!isConnected) {
-        printf("Camera is not connected!\n");
         return false;
     }
 
@@ -256,17 +241,20 @@ bool hikcamera::HikCamera::grabImage(cv::Mat& outImg) {
         }
 
         MV_CC_FreeImageBuffer(handle, &stOutFrame);
+        fail_conut_ =0;
         
         return true;
     } else {
         printf("Get image buffer failed! nRet [0x%x]\n", nRet);
-        return false;
+        MV_CC_StopGrabbing(handle);
+        MV_CC_StartGrabbing(handle);
+        fail_conut_++;
+        if (fail_conut_ > 5)
+        {
+            closeCamera();
+        }
     }
-}
-
-void hikcamera::HikCamera::reconnect() {
-    closeCamera();
-    openCamera();
+    return false;
 }
 
 bool hikcamera::HikCamera::calibrateCamera(const std::vector<std::vector<cv::Point3f>>& objectPoints,

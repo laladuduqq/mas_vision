@@ -2,7 +2,7 @@
  * @Author: laladuduqq 2807523947@qq.com
  * @Date: 2025-07-28 18:10:53
  * @LastEditors: laladuduqq 2807523947@qq.com
- * @LastEditTime: 2025-08-17 18:15:37
+ * @LastEditTime: 2025-08-17 20:00:35
  * @FilePath: /mas_vision/hikcamera/thread/cam_thread.cpp
  * @Description:
  */
@@ -13,9 +13,6 @@
 #include <condition_variable>
 #include <atomic>
 #include <iostream>
-#include <filesystem>
-#include <chrono>
-#include <sstream>
 
 extern std::atomic<bool> running;
 extern std::queue<cv::Mat> frameQueue;
@@ -115,7 +112,7 @@ void cameraThreadFunc(hikcamera::HikCamera& cam) {
             // 将帧放入队列供其他线程使用
             {
                 std::lock_guard<std::mutex> lock(queueMutex);
-                frameQueue.push(frame.clone());
+                frameQueue.push(frame);
             }
             queueCond.notify_one();
         } 
