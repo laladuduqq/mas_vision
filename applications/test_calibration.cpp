@@ -2,7 +2,7 @@
  * @Author: laladuduqq 2807523947@qq.com
  * @Date: 2025-08-17 17:03:17
  * @LastEditors: laladuduqq 2807523947@qq.com
- * @LastEditTime: 2025-08-17 17:05:39
+ * @LastEditTime: 2025-08-17 17:21:23
  * @FilePath: /mas_vision/applications/test_calibration.cpp
  * @Description: 
  */
@@ -14,7 +14,7 @@ int main() {
     std::cout << "=== Camera Calibration Test Program ===" << std::endl;
 
     // 初始化相机
-    HikCamera camera;
+    hikcamera::HikCamera camera;
     if (!camera.openCamera()) {
         std::cerr << "Failed to open camera!" << std::endl;
         return -1;

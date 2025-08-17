@@ -5,16 +5,16 @@
 #include "HikCamera.h"
 #include "MvCameraControl.h"
 
-HikCamera::HikCamera() : handle(NULL), isConnected(false) {
+hikcamera::HikCamera::HikCamera() : handle(NULL), isConnected(false) {
     memset(serialNumber, 0, sizeof(serialNumber));
 }
 
-HikCamera::~HikCamera() {
+hikcamera::HikCamera::~HikCamera() {
     closeCamera();
 }
 
 // 异常重连回调
-void __stdcall HikCamera::ReconnectCallback(unsigned int nMsgType, void* pUser)
+void __stdcall hikcamera::HikCamera::ReconnectCallback(unsigned int nMsgType, void* pUser)
 {
     HikCamera* cam = reinterpret_cast<HikCamera*>(pUser);
     if (nMsgType == MV_EXCEPTION_DEV_DISCONNECT && cam) {
@@ -24,7 +24,7 @@ void __stdcall HikCamera::ReconnectCallback(unsigned int nMsgType, void* pUser)
     }
 }
 
-bool HikCamera::openCamera() {
+bool hikcamera::HikCamera::openCamera() {
     int nRet = MV_OK;
 
     // Initialize SDK
@@ -187,7 +187,7 @@ bool HikCamera::openCamera() {
     return true;
 }
 
-void HikCamera::closeCamera() {
+void hikcamera::HikCamera::closeCamera() {
     if (isConnected) {
         MV_CC_StopGrabbing(handle);
         MV_CC_CloseDevice(handle);
@@ -204,7 +204,7 @@ void HikCamera::closeCamera() {
     }
 }
 
-bool HikCamera::grabImage(cv::Mat& outImg) {
+bool hikcamera::HikCamera::grabImage(cv::Mat& outImg) {
     if (!isConnected) {
         printf("Camera is not connected!\n");
         return false;
@@ -264,12 +264,12 @@ bool HikCamera::grabImage(cv::Mat& outImg) {
     }
 }
 
-void HikCamera::reconnect() {
+void hikcamera::HikCamera::reconnect() {
     closeCamera();
     openCamera();
 }
 
-bool HikCamera::calibrateCamera(const std::vector<std::vector<cv::Point3f>>& objectPoints,
+bool hikcamera::HikCamera::calibrateCamera(const std::vector<std::vector<cv::Point3f>>& objectPoints,
                                const std::vector<std::vector<cv::Point2f>>& imagePoints,
                                const cv::Size& imageSize,
                                cv::Mat& cameraMatrix,
@@ -297,7 +297,7 @@ bool HikCamera::calibrateCamera(const std::vector<std::vector<cv::Point3f>>& obj
     return true;
 }
 
-bool HikCamera::saveCalibration(const std::string& filename,
+bool hikcamera::HikCamera::saveCalibration(const std::string& filename,
                                const cv::Mat& cameraMatrix,
                                const cv::Mat& distCoeffs,
                                const cv::Size& imageSize) {
@@ -324,7 +324,7 @@ bool HikCamera::saveCalibration(const std::string& filename,
 }
 
 
-bool HikCamera::PrintDeviceInfo(MV_CC_DEVICE_INFO* pstMVDevInfo)
+bool hikcamera::HikCamera::PrintDeviceInfo(MV_CC_DEVICE_INFO* pstMVDevInfo)
 {
     if (NULL == pstMVDevInfo)
     {

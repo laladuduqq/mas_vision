@@ -157,7 +157,7 @@ int main() {
     std::cout << std::endl;
 
     // 初始化相机
-    HikCamera camera;
+    hikcamera::HikCamera camera;
     if (!camera.openCamera()) {
         std::cerr << "Failed to open camera!" << std::endl;
         return -1;

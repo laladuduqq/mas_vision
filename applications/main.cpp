@@ -2,7 +2,7 @@
  * @Author: laladuduqq 2807523947@qq.com
  * @Date: 2025-08-17 16:17:20
  * @LastEditors: laladuduqq 2807523947@qq.com
- * @LastEditTime: 2025-08-17 16:54:55
+ * @LastEditTime: 2025-08-17 17:21:02
  * @FilePath: /mas_vision/applications/main.cpp
  * @Description: 
  */
@@ -22,7 +22,7 @@ std::mutex queueMutex;
 std::condition_variable queueCond;
 
 
-void cameraThreadFunc(HikCamera& cam);
+void cameraThreadFunc(hikcamera::HikCamera& cam);
 
 // 信号处理函数，用于退出
 void signalHandler(int signum) {
@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
     signal(SIGINT, signalHandler);
 
     // 初始化相机
-    HikCamera cam;
+    hikcamera::HikCamera cam;
     std::thread camThread(cameraThreadFunc, std::ref(cam));
 
 

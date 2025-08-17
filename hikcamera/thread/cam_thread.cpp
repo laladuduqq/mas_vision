@@ -2,8 +2,8 @@
  * @Author: laladuduqq 2807523947@qq.com
  * @Date: 2025-07-28 18:10:53
  * @LastEditors: laladuduqq 2807523947@qq.com
- * @LastEditTime: 2025-08-02 16:56:54
- * @FilePath: /learn1/thread/cam_thread.cpp
+ * @LastEditTime: 2025-08-17 18:15:37
+ * @FilePath: /mas_vision/hikcamera/thread/cam_thread.cpp
  * @Description:
  */
 #include "HikCamera.h"
@@ -13,6 +13,9 @@
 #include <condition_variable>
 #include <atomic>
 #include <iostream>
+#include <filesystem>
+#include <chrono>
+#include <sstream>
 
 extern std::atomic<bool> running;
 extern std::queue<cv::Mat> frameQueue;
@@ -26,8 +29,10 @@ static cv::Mat distCoeffs;
 static cv::Mat map1, map2;  // 用于remap的映射表
 static bool useCalibration = false;
 static cv::Size imageSize;
+static bool displayEnabled = false;
 
-// 初始化标定参数
+
+// 初始化标定参数 
 bool initCalibration() {
     try {
         cv::FileStorage fs("config/camera_calibration.json", cv::FileStorage::READ);
@@ -52,7 +57,6 @@ bool initCalibration() {
                 fs.release();
 
                 std::cout << "Calibration parameters loaded successfully" << std::endl;
-                std::cout << "Camera matrix: " << std::endl << cameraMatrix << std::endl;
                 return true;
             }
             fs.release();
@@ -65,37 +69,64 @@ bool initCalibration() {
     return false;
 }
 
-void cameraThreadFunc(HikCamera& cam) {
+void cameraThreadFunc(hikcamera::HikCamera& cam) {
     cv::Mat frame;
-    cv::Mat undistortedFrame;
+    cv::Mat undistortedFrame;   
 
+    try {
+        cv::FileStorage fs("config/camera_set.json", cv::FileStorage::READ);
+        if (fs.isOpened()) {
+            fs["display"] >> displayEnabled;
+            fs.release();
+        }
+    } catch (const cv::Exception& e) {
+        std::cerr << "Failed to load: " << e.what() << std::endl;
+    };
+    
     // 初始化相机
     if (!cam.openCamera()) {
-        printf("打开摄像头失败！\n");
+        std::cerr << "Failed to initialize camera" << std::endl;
         running = false;
         return;
     }
-
+    
+    camReady = true;
+    std::cout << "Camera initialized successfully" << std::endl;
+    
     // 初始化标定参数
     useCalibration = initCalibration();
-
-    camReady = true;
-    while (running) {
+    
+    while (running.load()) {
+        // 获取帧
         if (cam.grabImage(frame)) {
-            // 如果有标定参数，则进行去畸变处理
-            if (useCalibration && !map1.empty() && !map2.empty()) {
-                // 使用预计算的映射表进行快速去畸变
+            // 如果启用了标定，则进行畸变校正
+            if (useCalibration && !frame.empty()) {
                 cv::remap(frame, undistortedFrame, map1, map2, cv::INTER_LINEAR);
-            } else {
-                undistortedFrame = frame;
+                frame = undistortedFrame;
             }
-
-            std::lock_guard<std::mutex> lock(queueMutex);
-            // 只保留最新一帧
-            while (!frameQueue.empty()) frameQueue.pop();
-            frameQueue.push(undistortedFrame); // 使用处理后的图像
+            if (displayEnabled)
+            {
+                // 显示图像
+                cv::Mat resizedDrawingFrame;
+                cv::resize(frame, resizedDrawingFrame, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
+                cv::imshow("Camera", resizedDrawingFrame);
+                cv::waitKey(1);
+            }
+            // 将帧放入队列供其他线程使用
+            {
+                std::lock_guard<std::mutex> lock(queueMutex);
+                frameQueue.push(frame.clone());
+            }
             queueCond.notify_one();
-        }
+        } 
     }
+
     cam.closeCamera();
+    if (displayEnabled)
+    {
+        // 关闭所有OpenCV窗口
+        cv::destroyAllWindows();
+    }
+    
+    std::cout << "Camera thread finished" << std::endl;
 }
