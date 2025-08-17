@@ -1,0 +1,13 @@
+{
+    "port": "/dev/ttyUSB0",
+    "baudrate": 115200,
+    "flow_control": "none",
+    "parity": "none",
+    "stop_bits": "1",
+    "virtual_serial": true,
+    "virtual_data": {
+        "yaw": 0.0,
+        "pitch": 20.0,
+        "roll": 100.0
+    }
+}

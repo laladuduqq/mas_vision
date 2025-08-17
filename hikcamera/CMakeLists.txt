@@ -36,8 +36,10 @@ target_link_options(HikCamera PUBLIC
 )
 
 # 将库添加到全局变量中，供主CMakeLists.txt使用
-set(MAIN_PROJECT_LIBRARIES HikCamera CACHE INTERNAL "Libraries for main project")
-set(MAIN_PROJECT_INCLUDE_DIRS 
+list(APPEND MAIN_PROJECT_LIBRARIES HikCamera)
+list(APPEND MAIN_PROJECT_INCLUDE_DIRS 
     ${CMAKE_CURRENT_SOURCE_DIR}/include 
-    ${MVS_INCLUDE_DIR}
-    CACHE INTERNAL "Include directories for main project")
+    ${MVS_INCLUDE_DIR})
+
+set(MAIN_PROJECT_LIBRARIES ${MAIN_PROJECT_LIBRARIES} CACHE INTERNAL "Libraries for main project")
+set(MAIN_PROJECT_INCLUDE_DIRS ${MAIN_PROJECT_INCLUDE_DIRS} CACHE INTERNAL "Include directories for main project")

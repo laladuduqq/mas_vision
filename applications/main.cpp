@@ -2,11 +2,12 @@
  * @Author: laladuduqq 2807523947@qq.com
  * @Date: 2025-08-17 16:17:20
  * @LastEditors: laladuduqq 2807523947@qq.com
- * @LastEditTime: 2025-08-17 17:21:02
+ * @LastEditTime: 2025-08-17 19:46:24
  * @FilePath: /mas_vision/applications/main.cpp
  * @Description: 
  */
 #include "HikCamera.h"
+#include "serial.hpp"  
 #include <thread>
 #include <queue>
 #include <mutex>
@@ -21,6 +22,13 @@ std::queue<cv::Mat> frameQueue;
 std::mutex queueMutex;
 std::condition_variable queueCond;
 
+// 添加串口相关全局变量
+std::queue<mas_serial::ReceivedDataMsg> receivedDataQueue;
+std::mutex dataQueueMutex;
+std::condition_variable dataQueueCond;
+
+// 声明串口线程函数
+void serialThreadFunc(mas_serial::Serial& serial);
 
 void cameraThreadFunc(hikcamera::HikCamera& cam);
 
@@ -32,7 +40,6 @@ void signalHandler(int signum) {
 
 int main(int argc, char* argv[])
 {
-
     // 注册信号处理函数
     signal(SIGINT, signalHandler);
 
@@ -40,6 +47,13 @@ int main(int argc, char* argv[])
     hikcamera::HikCamera cam;
     std::thread camThread(cameraThreadFunc, std::ref(cam));
 
+    // 初始化串口
+    mas_serial::Serial serial;
+    if (!serial.init("config/serial_config.json")) {
+        std::cerr << "Failed to initialize serial port" << std::endl;
+        return -1;
+    }
+    std::thread serialThread(serialThreadFunc, std::ref(serial));
 
     // 主循环
     while (running.load()) {
@@ -49,7 +63,7 @@ int main(int argc, char* argv[])
 
     // 等待所有线程结束
     camThread.join();
-
+    serialThread.join();
 
     std::cout << "exit." << std::endl;
     return 0;
