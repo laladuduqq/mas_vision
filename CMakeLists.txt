@@ -33,14 +33,28 @@ add_executable(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}/applications/main.cpp
 )
 
+# 添加校准程序
+add_executable(calibrate_camera
+        ${CMAKE_CURRENT_SOURCE_DIR}/applications/calibrate_camera.cpp
+)
+
+# 添加校准测试程序
+add_executable(test_calibration
+        ${CMAKE_CURRENT_SOURCE_DIR}/applications/test_calibration.cpp
+)
+
 # 设置包含目录
 if(MAIN_PROJECT_INCLUDE_DIRS)
     target_include_directories(${PROJECT_NAME} PRIVATE ${MAIN_PROJECT_INCLUDE_DIRS})
+    target_include_directories(calibrate_camera PRIVATE ${MAIN_PROJECT_INCLUDE_DIRS})
+    target_include_directories(test_calibration PRIVATE ${MAIN_PROJECT_INCLUDE_DIRS})
 endif()
 
 # 链接库
 if(MAIN_PROJECT_LIBRARIES)
     target_link_libraries(${PROJECT_NAME} ${MAIN_PROJECT_LIBRARIES})
+    target_link_libraries(calibrate_camera ${MAIN_PROJECT_LIBRARIES})
+    target_link_libraries(test_calibration ${MAIN_PROJECT_LIBRARIES})
 endif()
 
 # 创建软链接到源代码中的config文件夹
