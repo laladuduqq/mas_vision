@@ -1,4 +1,12 @@
-#include "hikcamera/include/HikCamera.h"
+/*
+ * @Author: laladuduqq 2807523947@qq.com
+ * @Date: 2025-08-17 16:17:20
+ * @LastEditors: laladuduqq 2807523947@qq.com
+ * @LastEditTime: 2025-08-17 16:54:55
+ * @FilePath: /mas_vision/applications/main.cpp
+ * @Description: 
+ */
+#include "HikCamera.h"
 #include <thread>
 #include <queue>
 #include <mutex>

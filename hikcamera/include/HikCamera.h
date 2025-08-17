@@ -2,8 +2,8 @@
  * @Author: laladuduqq 2807523947@qq.com
  * @Date: 2025-07-27 17:37:26
  * @LastEditors: laladuduqq 2807523947@qq.com
- * @LastEditTime: 2025-07-27 21:28:30
- * @FilePath: /learn1/hikcamera/include/HikCamera.h
+ * @LastEditTime: 2025-08-17 16:49:09
+ * @FilePath: /mas_vision/hikcamera/include/HikCamera.h
  * @Description: 
  */
 #ifndef HIKCAMERA_H
