@@ -1,0 +1,29 @@
+{
+  "armor_detector": {
+    "debug": true,
+    "binary_thres": 90,
+    "detect_color": "RED",
+    "light_params": {
+      "min_ratio": 0.0001,
+      "max_ratio": 1.0,
+      "max_angle": 40.0,
+      "color_diff_thresh": 20
+    },
+    "armor_params": {
+      "min_light_ratio": 0.8,
+      "min_small_center_distance": 0.8,
+      "max_small_center_distance": 3.5,
+      "min_large_center_distance": 3.5,
+      "max_large_center_distance": 8.0,
+      "max_angle": 35.0
+    },
+    "number_params": {
+      "model_path": "../mas_auto_aim_armor/armor_detector/model/lenet.onnx",
+      "label_path": "../mas_auto_aim_armor/armor_detector/model/label.txt",
+      "classifier_threshold" : 0.7,
+      "ignore_classes" : [
+        "negative"
+      ]
+    }
+  }
+}

@@ -333,7 +333,32 @@ void mas_utils::PerformanceMonitor::updateThreadUsage() {
 #endif
 
 void mas_utils::PerformanceMonitor::drawPerformanceChart() {
-    perfFrame_ = cv::Scalar(30, 30, 30); // 深灰色背景
+    // 计算需要的窗口高度
+    int baseHeight = 400; // 基础高度（系统信息、CPU核心信息等）
+    int coreHeight = 0;
+    int threadHeight = 0;
+    
+    // 计算CPU核心信息所需高度
+    if (!cores_.empty()) {
+        int coreRows = (cores_.size() + 3) / 4; // 每行显示4个核心
+        coreHeight = coreRows * 30 + 60; // 60是标题和间距
+    }
+    
+    // 计算线程信息所需高度
+    {
+        std::lock_guard<std::mutex> lock(threadsMutex_);
+        threadHeight = 60 + (int)threads_.size() * 25; // 60是标题和间距，每个线程25像素
+    }
+    
+    // 计算总高度（至少600像素）
+    int totalHeight = std::max(600, baseHeight + coreHeight + threadHeight);
+    
+    // 如果窗口大小不够，重新创建
+    if (perfFrame_.rows < totalHeight) {
+        perfFrame_ = cv::Mat(totalHeight, 800, CV_8UC3, cv::Scalar(30, 30, 30));
+    } else {
+        perfFrame_ = cv::Scalar(30, 30, 30); // 深灰色背景
+    }
     
     // 绘制标题
     cv::putText(perfFrame_, "System Performance Monitor", cv::Point(10, 30), 
@@ -415,7 +440,7 @@ void mas_utils::PerformanceMonitor::drawPerformanceChart() {
         int x = 20 + col * coreSpacing;
         int y = startY + row * 30;
         
-        if (y > perfFrame_.rows - 200) break; // 防止超出画面
+        // 移除了防止超出画面的检查，因为我们已经调整了窗口大小
         
         cv::putText(perfFrame_, cv::format("Core %d:", cores_[i].coreId), cv::Point(x, y), 
                     cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(200, 200, 200), 1);
@@ -447,7 +472,7 @@ void mas_utils::PerformanceMonitor::drawPerformanceChart() {
         std::lock_guard<std::mutex> lock(threadsMutex_);
         startY += 30;
         for (const auto& thread : threads_) {
-            if (startY > perfFrame_.rows - 60) break; // 防止超出画面
+            // 移除了防止超出画面的检查，因为我们已经调整了窗口大小
             
             cv::putText(perfFrame_, thread.name, cv::Point(20, startY), 
                         cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);

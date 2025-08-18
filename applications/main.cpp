@@ -2,7 +2,7 @@
  * @Author: laladuduqq 2807523947@qq.com
  * @Date: 2025-08-17 16:17:20
  * @LastEditors: laladuduqq 2807523947@qq.com
- * @LastEditTime: 2025-08-18 00:40:51
+ * @LastEditTime: 2025-08-18 09:44:19
  * @FilePath: /mas_vision/applications/main.cpp
  * @Description: 
  */
@@ -19,12 +19,14 @@
 
 std::atomic<bool> running(true);
 std::atomic<bool> camReady(false);
+std::atomic<bool> serialReady(false);
 
 // 声明线程启动函数
 void startCameraThread(hikcamera::HikCamera& cam);
 void startSerialThread(mas_serial::Serial& serial);
 void startPubSubThread();
 void stopPubSubThread();
+void startarmordetectorThread();
 
 // 性能监控器实例
 mas_utils::PerformanceMonitor perfMonitor;
@@ -64,6 +66,9 @@ int main(int argc, char* argv[])
 
     // 启动串口线程
     startSerialThread(serial);
+
+    // 启动装甲板检测线程
+    startarmordetectorThread();
 
     // 主循环
     while (running.load()) {
