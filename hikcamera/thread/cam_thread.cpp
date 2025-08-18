@@ -2,7 +2,7 @@
  * @Author: laladuduqq 2807523947@qq.com
  * @Date: 2025-07-28 18:10:53
  * @LastEditors: laladuduqq 2807523947@qq.com
- * @LastEditTime: 2025-08-18 00:14:24
+ * @LastEditTime: 2025-08-18 08:48:42
  * @FilePath: /mas_vision/hikcamera/thread/cam_thread.cpp
  * @Description:
  */
@@ -71,7 +71,7 @@ void cameraThreadFunc(hikcamera::HikCamera& cam) {
         } 
     }
 
-
+    camReady = false;
     cam.closeCamera();
     if (displayEnabled)
     {

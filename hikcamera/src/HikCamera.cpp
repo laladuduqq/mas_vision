@@ -179,12 +179,6 @@ void hikcamera::HikCamera::closeCamera() {
         MV_CC_CloseDevice(handle);
         MV_CC_DestroyHandle(handle);
         handle = NULL;
-
-        if (handle != NULL)
-        {
-            MV_CC_DestroyHandle(handle);
-            handle = NULL;
-        }
         isConnected = false;
         MV_CC_Finalize();
     }

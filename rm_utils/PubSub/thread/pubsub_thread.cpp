@@ -2,7 +2,7 @@
  * @Author: laladuduqq 2807523947@qq.com
  * @Date: 2025-08-17 22:13:38
  * @LastEditors: laladuduqq 2807523947@qq.com
- * @LastEditTime: 2025-08-18 00:41:50
+ * @LastEditTime: 2025-08-18 08:50:56
  * @FilePath: /mas_vision/rm_utils/PubSub/thread/pubsub_thread.cpp
  * @Description: 消息中心线程实现
  */
@@ -14,6 +14,8 @@
 
 // 性能监控器实例
 extern mas_utils::PerformanceMonitor perfMonitor;
+// 运行标志
+extern std::atomic<bool> running;
 
 // 消息中心线程函数
 void runMessageCenter() {
@@ -22,7 +24,7 @@ void runMessageCenter() {
     center.start();
     
     // 持续处理消息直到停止
-    while (true) {
+    while (running.load() && center.isRunning()) {
         center.processMessages();
     }
 }
