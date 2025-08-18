@@ -2,7 +2,7 @@
  * @Author: laladuduqq 2807523947@qq.com
  * @Date: 2025-08-17 17:10:54
  * @LastEditors: laladuduqq 2807523947@qq.com
- * @LastEditTime: 2025-08-18 09:51:36
+ * @LastEditTime: 2025-08-18 15:23:54
  * @FilePath: /mas_vision/serial/thread/serial_thread.cpp
  * @Description: 
  */
@@ -28,6 +28,11 @@ void serialThreadFunc(mas_serial::Serial& serial) {
         if (serial.isOpen() || serial.isVirtual()){
             serialReady = true;
             if (serial.readData(data)) {
+                data.roll  = data.roll  * M_PI / 180.0;
+                data.pitch = data.pitch * M_PI / 180.0;
+                data.yaw   = data.yaw   * M_PI / 180.0;
+
+                
                 // 发布消息到PubSub系统
                 serialPublisher.publish(data);
             }

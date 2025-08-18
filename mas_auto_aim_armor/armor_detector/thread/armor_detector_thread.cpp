@@ -105,8 +105,48 @@ void armorDetectorThreadFunc() {
     // 注册性能监控
     perfMonitor.addThread("ArmorDetector", perfMonitor.getThreadsId());
     
+    // 保存上一次的模式，用于检测模式变化
+    uint8_t lastMode = SubSerial.mode;
+    // 标记是否处于符文模式
+    bool inRuneMode = false;
+    
     while (running) {
         while (!camReady || !serialReady) {std::this_thread::sleep_for(std::chrono::milliseconds(100));}
+        
+        // 检查模式是否发生变化
+        if (SubSerial.mode != lastMode) {
+            // 根据模式设置装甲板检测器的颜色或挂起/恢复检测
+            switch (SubSerial.mode) {
+                case 0: // AUTO_AIM_RED
+                    detector.setDetectColor(EnemyColor::RED);
+                    inRuneMode = false;
+                    std::cout << "Switching to RED detection mode" << std::endl;
+                    break;
+                case 1: // AUTO_AIM_BLUE
+                    detector.setDetectColor(EnemyColor::BLUE);
+                    inRuneMode = false;
+                    std::cout << "Switching to BLUE detection mode" << std::endl;
+                    break;
+                case 2: // SMALL_RUNE_RED
+                case 3: // SMALL_RUNE_BLUE
+                case 4: // BIG_RUNE_RED
+                case 5: // BIG_RUNE_BLUE
+                    inRuneMode = true;
+                    std::cout << "Entering rune mode, pausing armor detection" << std::endl;
+                    break;
+                default:
+                    std::cout << "Unknown mode: " << static_cast<int>(SubSerial.mode) << std::endl;
+                    break;
+            }
+            lastMode = SubSerial.mode;
+        }
+        
+        // 如果处于符文模式，则跳过装甲板检测
+        if (inRuneMode) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            continue;
+        }
+        
         if (!SubImage.empty() && imagesubReady && serialsubReady) {
             imagesubReady = false;
             serialsubReady = false;

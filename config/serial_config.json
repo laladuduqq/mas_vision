@@ -7,7 +7,8 @@
     "virtual_serial": true,
     "virtual_data": {
         "yaw": 0.0,
-        "pitch": 20.0,
-        "roll": 100.0
+        "pitch": 0.0,
+        "roll": 0.0,
+        "mode": 1
     }
 }

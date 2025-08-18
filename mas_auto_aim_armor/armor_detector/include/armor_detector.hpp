@@ -2,7 +2,7 @@
  * @Author: laladuduqq 2807523947@qq.com
  * @Date: 2025-08-17 21:13:48
  * @LastEditors: laladuduqq 2807523947@qq.com
- * @LastEditTime: 2025-08-18 09:42:28
+ * @LastEditTime: 2025-08-18 15:37:53
  * @FilePath: /mas_vision/mas_auto_aim_armor/armor_detector/include/armor_detector.hpp
  * @Description: 
  */
@@ -32,6 +32,8 @@ namespace mas_auto_aim_armor {
         std::vector<Armor> getArmors(cv::Mat& image);
         // 在图像上绘制装甲板
         static void drawArmors(cv::Mat& image, const std::vector<Armor>& armors);
+        // 设置要检测的装甲板颜色
+        void setDetectColor(EnemyColor color);
 
     private:
         int binary_threshold_;  // 二值化阈值
